@@ -10,7 +10,7 @@
 
 #include "Rhythm.h"
 
-Rhythm::Rhythm()
+Rhythm::Rhythm(const char* dataName)
 {
     volumeLabel.setText("Volume", juce::dontSendNotification);
     volumeLabel.setJustificationType(juce::Justification::centred);
@@ -40,8 +40,10 @@ Rhythm::Rhythm()
     
     juce::AudioFormatManager formatManager;
     formatManager.registerBasicFormats();
+    int size = 0;
+    auto resource = BinaryData::getNamedResource(dataName, size);
     juce::AudioFormatReader* reader {
-        formatManager.createReaderFor(std::make_unique<juce::MemoryInputStream>(BinaryData::metronomeDown_wav, BinaryData::metronomeDown_wavSize, false))
+        formatManager.createReaderFor(std::make_unique<juce::MemoryInputStream>(resource, size, false))
     };
     
     sampleBuffer.setSize(reader->numChannels, (int) reader->lengthInSamples);
@@ -115,11 +117,15 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
     {
         int numSamplesToAdd = juce::jmin(sampleBuffer.getNumSamples()-bufferPos, numSamples);
         juce::AudioBuffer<float> copyBuffer;
+        
         copyBuffer.setSize(2, numSamplesToAdd);
         copyBuffer.copyFrom(0, 0, sampleBuffer, 0, bufferPos, numSamplesToAdd);
         copyBuffer.applyGain(volumeSlider.getValue());
+        
         buffer.addFrom(0, 0, copyBuffer, 0, 0, numSamplesToAdd);
-
+        
+        if(buffer.getNumChannels() > 1)
+            buffer.addFrom(1, 0, copyBuffer, 0, 0, numSamplesToAdd);
         
         bufferPos += numSamplesToAdd;
         if (bufferPos >= sampleBuffer.getNumSamples())

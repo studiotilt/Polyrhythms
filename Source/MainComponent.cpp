@@ -5,7 +5,7 @@ MainComponent::MainComponent()
 {
     for (int i = 0; i < 8; i++)
     {
-        rhythms.add(new Rhythm);
+        rhythms.add(new Rhythm(BinaryData::namedResourceList[i]));
         addAndMakeVisible(rhythms[i]);
     }
     
@@ -47,7 +47,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // force the bpm to 120 for now
     for (auto rhythm : rhythms)
     {
-        rhythm->setSamplesPerBeat(sampleRate*60.0f / 120.0f);
+        rhythm->setSamplesPerBeat(sampleRate*60.0f / bpm);
     }
 }
 

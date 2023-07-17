@@ -4,8 +4,50 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="hFbRi9" name="Polyrhythms">
     <GROUP id="{B8303342-ABE3-0ED1-995F-17DA99C8127B}" name="Assets">
-      <FILE id="g0SdBM" name="metronomeDown.wav" compile="0" resource="1"
-            file="Assets/metronomeDown.wav"/>
+      <FILE id="CuXIj4" name="A (1).wav" compile="0" resource="1" file="Assets/A (1).wav"/>
+      <FILE id="e1ashU" name="A (2).wav" compile="0" resource="1" file="Assets/A (2).wav"/>
+      <FILE id="f7BRSz" name="A (3).wav" compile="0" resource="1" file="Assets/A (3).wav"/>
+      <FILE id="E4agbN" name="A (4).wav" compile="0" resource="1" file="Assets/A (4).wav"/>
+      <FILE id="QLhVhF" name="A (5).wav" compile="0" resource="1" file="Assets/A (5).wav"/>
+      <FILE id="TPFSGv" name="A (6).wav" compile="0" resource="1" file="Assets/A (6).wav"/>
+      <FILE id="oJOAo7" name="A (7).wav" compile="0" resource="1" file="Assets/A (7).wav"/>
+      <FILE id="GmJImb" name="A (8).wav" compile="0" resource="1" file="Assets/A (8).wav"/>
+      <FILE id="YPZ1YQ" name="A (9).wav" compile="0" resource="1" file="Assets/A (9).wav"/>
+      <FILE id="K1R2Fn" name="A (10).wav" compile="0" resource="1" file="Assets/A (10).wav"/>
+      <FILE id="PdQFGn" name="A (11).wav" compile="0" resource="1" file="Assets/A (11).wav"/>
+      <FILE id="GwPg58" name="A (12).wav" compile="0" resource="1" file="Assets/A (12).wav"/>
+      <FILE id="J67wod" name="A (13).wav" compile="0" resource="1" file="Assets/A (13).wav"/>
+      <FILE id="RnOf3G" name="A (14).wav" compile="0" resource="1" file="Assets/A (14).wav"/>
+      <FILE id="oDgHru" name="A (15).wav" compile="0" resource="1" file="Assets/A (15).wav"/>
+      <FILE id="JdAwhp" name="A (16).wav" compile="0" resource="1" file="Assets/A (16).wav"/>
+      <FILE id="hKiQ0m" name="A (17).wav" compile="0" resource="1" file="Assets/A (17).wav"/>
+      <FILE id="Hdu3dM" name="A (18).wav" compile="0" resource="1" file="Assets/A (18).wav"/>
+      <FILE id="IBsWpE" name="A (19).wav" compile="0" resource="1" file="Assets/A (19).wav"/>
+      <FILE id="votiMW" name="A (20).wav" compile="0" resource="1" file="Assets/A (20).wav"/>
+      <FILE id="BPqgB8" name="A (21).wav" compile="0" resource="1" file="Assets/A (21).wav"/>
+      <FILE id="sigzB9" name="A (22).wav" compile="0" resource="1" file="Assets/A (22).wav"/>
+      <FILE id="RjSxbX" name="A (23).wav" compile="0" resource="1" file="Assets/A (23).wav"/>
+      <FILE id="sd4Gpy" name="A (24).wav" compile="0" resource="1" file="Assets/A (24).wav"/>
+      <FILE id="BlbX01" name="A (25).wav" compile="0" resource="1" file="Assets/A (25).wav"/>
+      <FILE id="E70hoX" name="A (26).wav" compile="0" resource="1" file="Assets/A (26).wav"/>
+      <FILE id="JN94cH" name="A (27).wav" compile="0" resource="1" file="Assets/A (27).wav"/>
+      <FILE id="lbOHxZ" name="A (28).wav" compile="0" resource="1" file="Assets/A (28).wav"/>
+      <FILE id="xMwiDl" name="A (29).wav" compile="0" resource="1" file="Assets/A (29).wav"/>
+      <FILE id="v0UraO" name="A (30).wav" compile="0" resource="1" file="Assets/A (30).wav"/>
+      <FILE id="C0l18s" name="A (31).wav" compile="0" resource="1" file="Assets/A (31).wav"/>
+      <FILE id="X7bbop" name="A (32).wav" compile="0" resource="1" file="Assets/A (32).wav"/>
+      <FILE id="ScsbeL" name="A (33).wav" compile="0" resource="1" file="Assets/A (33).wav"/>
+      <FILE id="NMFids" name="A (34).wav" compile="0" resource="1" file="Assets/A (34).wav"/>
+      <FILE id="hUWFpj" name="A (35).wav" compile="0" resource="1" file="Assets/A (35).wav"/>
+      <FILE id="ga3CPf" name="A (36).wav" compile="0" resource="1" file="Assets/A (36).wav"/>
+      <FILE id="oFIKVM" name="A (37).wav" compile="0" resource="1" file="Assets/A (37).wav"/>
+      <FILE id="X2BhLG" name="A (38).wav" compile="0" resource="1" file="Assets/A (38).wav"/>
+      <FILE id="NwFzzp" name="A (39).wav" compile="0" resource="1" file="Assets/A (39).wav"/>
+      <FILE id="XpUCam" name="A (40).wav" compile="0" resource="1" file="Assets/A (40).wav"/>
+      <FILE id="JNiJgS" name="A (41).wav" compile="0" resource="1" file="Assets/A (41).wav"/>
+      <FILE id="cxKdDN" name="A (42).wav" compile="0" resource="1" file="Assets/A (42).wav"/>
+      <FILE id="mpqMtp" name="A (43).wav" compile="0" resource="1" file="Assets/A (43).wav"/>
+      <FILE id="pQtIde" name="A (44).wav" compile="0" resource="1" file="Assets/A (44).wav"/>
     </GROUP>
     <GROUP id="{34A50971-C7FD-6B8C-8CB9-FD56306D0C75}" name="Source">
       <FILE id="DYZh5X" name="Rhythm.cpp" compile="1" resource="0" file="Source/Rhythm.cpp"/>

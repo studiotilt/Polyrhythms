@@ -15,7 +15,7 @@
 class Rhythm : public juce::Component, private juce::ComboBox::Listener, private juce::Timer
 {
 public:
-    Rhythm();
+    Rhythm(const char* dataName);
     void paint(juce::Graphics &g) override;
     void resized() override;
     
