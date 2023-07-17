@@ -28,6 +28,8 @@ public:
 private:
     juce::OwnedArray<Rhythm> rhythms;
     float bpm = 400.0f;
+    int samplesPerBeat = 24000;
+    int bufferPos = 0;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

@@ -45,9 +45,10 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // For more details, see the help for AudioProcessor::prepareToPlay()
     
     // force the bpm to 120 for now
+    samplesPerBeat = sampleRate*60.0f / bpm;
     for (auto rhythm : rhythms)
     {
-        rhythm->setSamplesPerBeat(sampleRate*60.0f / bpm);
+        rhythm->setSamplesPerBeat(samplesPerBeat);
     }
 }
 
@@ -61,10 +62,20 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     // (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
     
+    bool homeBeat = false;
+    for (int i = 0; i < bufferToFill.buffer->getNumSamples(); i++)
+    {
+        if ((bufferPos + i) % (samplesPerBeat * 4) == 0)
+            homeBeat = true;
+    }
+    
+    bufferPos+=bufferToFill.buffer->getNumSamples();
     
     for(auto rhythm : rhythms)
     {
         rhythm->getNextBlock(*bufferToFill.buffer);
+        if (homeBeat)
+            rhythm->homeBeat();
     }
 }
 

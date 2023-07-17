@@ -73,6 +73,7 @@ void Rhythm::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     nominator = nominatorCombo.getSelectedItemIndex() + 1;
     denominator = denominatorCombo.getSelectedItemIndex()+ 1;
     updateTimeSig();
+    updateSamplesPerBeat();
 }
 
 
@@ -90,8 +91,23 @@ void Rhythm::setSamplesPerBeat(int samples)
     samplesPerBeat = samples;
 }
 
+void Rhythm::updateSamplesPerBeat()
+{
+    samplesPerBeatMul = samplesPerBeat / (denominator / 4.0f);
+    samplesPosition = 0;
+    bufferPos = 0;
+    readyToStart = true;
+}
+
+void Rhythm::homeBeat()
+{
+    readyToStart = false;
+}
+
 void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
 {
+    if (readyToStart) return;
+    
     int numSamples = buffer.getNumSamples();
     int oldSamplesPosition = samplesPosition;
     
@@ -99,7 +115,7 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
     
     for (int i = 0; i < numSamples; i++)
     {
-        if ((oldSamplesPosition + i) % samplesPerBeat == 0)
+        if ((oldSamplesPosition + i) % samplesPerBeatMul == 0)
         {
             beatCount++;
             if (beatCount % nominator == 0)
@@ -107,7 +123,7 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
                 beatCount = 0;
                 playBeep = true;
                 showColour = true;
-                currentColour = juce::Colours::pink;
+                currentColour = juce::Colour((juce::uint8)244, (juce::uint8)244, (juce::uint8)244, (float)volumeSlider.getValue());
                 bufferPos = 0;
             }
         }

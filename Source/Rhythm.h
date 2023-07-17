@@ -25,10 +25,12 @@ public:
     void getNextBlock(juce::AudioBuffer<float>& buffer);
     
     void timerCallback() override {repaint();}
+    
+    void homeBeat();
    
 private:
     void updateTimeSig();
-    
+    void updateSamplesPerBeat();
     
     juce::Label volumeLabel;
     juce::Slider volumeSlider;
@@ -50,6 +52,9 @@ private:
     int bufferPos;
     
     bool showColour;
+    int samplesPerBeatMul;
     int imageCyclePos = 0;
+    
+    bool readyToStart = true;
     
 };
