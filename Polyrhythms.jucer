@@ -3,6 +3,10 @@
 <JUCERPROJECT id="AFzvMl" name="Polyrhythms" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="hFbRi9" name="Polyrhythms">
+    <GROUP id="{B8303342-ABE3-0ED1-995F-17DA99C8127B}" name="Assets">
+      <FILE id="g0SdBM" name="metronomeDown.wav" compile="0" resource="1"
+            file="Assets/metronomeDown.wav"/>
+    </GROUP>
     <GROUP id="{34A50971-C7FD-6B8C-8CB9-FD56306D0C75}" name="Source">
       <FILE id="DYZh5X" name="Rhythm.cpp" compile="1" resource="0" file="Source/Rhythm.cpp"/>
       <FILE id="BlmMGH" name="Rhythm.h" compile="0" resource="0" file="Source/Rhythm.h"/>

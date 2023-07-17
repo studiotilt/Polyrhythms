@@ -43,6 +43,12 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // but be careful - it will be called on the audio thread, not the GUI thread.
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
+    
+    // force the bpm to 120 for now
+    for (auto rhythm : rhythms)
+    {
+        rhythm->setSamplesPerBeat(sampleRate*60.0f / 120.0f);
+    }
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
@@ -54,6 +60,12 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
+    
+    
+    for(auto rhythm : rhythms)
+    {
+        rhythm->getNextBlock(*bufferToFill.buffer);
+    }
 }
 
 void MainComponent::releaseResources()

@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 
-class Rhythm : public juce::Component, private juce::ComboBox::Listener
+class Rhythm : public juce::Component, private juce::ComboBox::Listener, private juce::Timer
 {
 public:
     Rhythm();
@@ -21,9 +21,15 @@ public:
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged);
     
+    void setSamplesPerBeat(int samples);
+    void getNextBlock(juce::AudioBuffer<float>& buffer);
+    
+    void timerCallback() override {repaint();}
+   
+private:
     void updateTimeSig();
     
-private:
+    
     juce::Label volumeLabel;
     juce::Slider volumeSlider;
     juce::ComboBox nominatorCombo;
@@ -33,5 +39,17 @@ private:
     juce::String timeSignature;
     int nominator;
     int denominator;
+    
+    juce::Colour currentColour;
+    int samplesPerBeat = 5000;
+    int samplesPosition = 0;
+    int beatCount = 0;
+    
+    juce::AudioBuffer<float> sampleBuffer;
+    bool playBeep = false;
+    int bufferPos;
+    
+    bool showColour;
+    int imageCyclePos = 0;
     
 };

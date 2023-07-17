@@ -36,10 +36,24 @@ Rhythm::Rhythm()
     
     addAndMakeVisible(timeSigLabel);
     
+    currentColour = juce::Colours::transparentBlack;
+    
+    juce::AudioFormatManager formatManager;
+    formatManager.registerBasicFormats();
+    juce::AudioFormatReader* reader {
+        formatManager.createReaderFor(std::make_unique<juce::MemoryInputStream>(BinaryData::metronomeDown_wav, BinaryData::metronomeDown_wavSize, false))
+    };
+    
+    sampleBuffer.setSize(reader->numChannels, (int) reader->lengthInSamples);
+    reader->read(&sampleBuffer, 0, reader->lengthInSamples, 0, true, true);
+    
+    startTimer(5);
 }
 
 void Rhythm::paint(juce::Graphics &g)
 {
+    g.setColour(currentColour);
+    g.fillAll();
 }
 
 void Rhythm::resized()
@@ -66,4 +80,64 @@ void Rhythm::updateTimeSig()
     timeSignature += "/";
     timeSignature += juce::String(denominator);
     timeSigLabel.setText(timeSignature, juce::dontSendNotification);
+}
+
+
+void Rhythm::setSamplesPerBeat(int samples)
+{
+    samplesPerBeat = samples;
+}
+
+void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
+{
+    int numSamples = buffer.getNumSamples();
+    int oldSamplesPosition = samplesPosition;
+    
+    samplesPosition+=numSamples;
+    
+    for (int i = 0; i < numSamples; i++)
+    {
+        if ((oldSamplesPosition + i) % samplesPerBeat == 0)
+        {
+            beatCount++;
+            if (beatCount % nominator == 0)
+            {
+                beatCount = 0;
+                playBeep = true;
+                showColour = true;
+                currentColour = juce::Colours::pink;
+                bufferPos = 0;
+            }
+        }
+    }
+    
+    if (playBeep)
+    {
+        int numSamplesToAdd = juce::jmin(sampleBuffer.getNumSamples()-bufferPos, numSamples);
+        juce::AudioBuffer<float> copyBuffer;
+        copyBuffer.setSize(2, numSamplesToAdd);
+        copyBuffer.copyFrom(0, 0, sampleBuffer, 0, bufferPos, numSamplesToAdd);
+        copyBuffer.applyGain(volumeSlider.getValue());
+        buffer.addFrom(0, 0, copyBuffer, 0, 0, numSamplesToAdd);
+
+        
+        bufferPos += numSamplesToAdd;
+        if (bufferPos >= sampleBuffer.getNumSamples())
+        {
+            bufferPos = 0;
+            playBeep = false;
+        }
+    }
+    
+    if (showColour)
+    {
+        imageCyclePos+=numSamples;
+        if (imageCyclePos >= 5000)
+        {
+            currentColour = juce::Colours::transparentBlack;
+            imageCyclePos = 0;
+            showColour = false;
+        }
+    }
+    
 }
