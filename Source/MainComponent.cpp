@@ -3,6 +3,12 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
+    for (int i = 0; i < 8; i++)
+    {
+        rhythms.add(new Rhythm);
+        addAndMakeVisible(rhythms[i]);
+    }
+    
     // Make sure you set the size of the component after
     // you add any child components.
     setSize (800, 600);
@@ -72,4 +78,10 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
+    int y = 10;
+    for(auto rhythm : rhythms)
+    {
+        rhythm->setBounds(0, y, getWidth(), 50);
+        y += 60;
+    }
 }
