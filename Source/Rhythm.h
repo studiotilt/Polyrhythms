@@ -26,7 +26,7 @@ public:
     
     void timerCallback() override {repaint();}
     
-    void homeBeat();
+    void restart();
    
 private:
     void updateTimeSig();
@@ -49,12 +49,10 @@ private:
     
     juce::AudioBuffer<float> sampleBuffer;
     bool playBeep = false;
-    int bufferPos;
+    int bufferPos = 0;
     
     bool showColour;
     int samplesPerBeatMul;
     int imageCyclePos = 0;
-    
-    bool readyToStart = true;
     
 };

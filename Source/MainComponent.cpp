@@ -3,6 +3,11 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
+    startButton.setButtonText("Start");
+    startButton.setToggleable(true);
+    startButton.setClickingTogglesState(true);
+    startButton.addListener(this);
+    addAndMakeVisible(startButton);
     for (int i = 0; i < 8; i++)
     {
         rhythms.add(new Rhythm(BinaryData::namedResourceList[i]));
@@ -61,21 +66,13 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
-    
-    bool homeBeat = false;
-    for (int i = 0; i < bufferToFill.buffer->getNumSamples(); i++)
-    {
-        if ((bufferPos + i) % (samplesPerBeat * 4) == 0)
-            homeBeat = true;
-    }
+    if (!playing) return;
     
     bufferPos+=bufferToFill.buffer->getNumSamples();
     
     for(auto rhythm : rhythms)
     {
         rhythm->getNextBlock(*bufferToFill.buffer);
-        if (homeBeat)
-            rhythm->homeBeat();
     }
 }
 
@@ -101,10 +98,31 @@ void MainComponent::resized()
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
-    int y = 10;
+    startButton.setBounds(0, 0, 50, 40);
+    int y = 40;
     for(auto rhythm : rhythms)
     {
         rhythm->setBounds(0, y, getWidth(), 50);
         y += 60;
+    }
+}
+
+void MainComponent::buttonClicked(juce::Button* button)
+{
+    if (button == &startButton)
+    {
+        if (button->getToggleState())
+        {
+            playing = true;
+        }
+        else
+        {
+            playing = false;
+            bufferPos = 0;
+            for (auto rhythm : rhythms)
+            {
+                rhythm->restart();
+            }
+        }
     }
 }

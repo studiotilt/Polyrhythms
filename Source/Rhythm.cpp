@@ -96,18 +96,19 @@ void Rhythm::updateSamplesPerBeat()
     samplesPerBeatMul = samplesPerBeat / (denominator / 4.0f);
     samplesPosition = 0;
     bufferPos = 0;
-    readyToStart = true;
 }
 
-void Rhythm::homeBeat()
+void Rhythm::restart()
 {
-    readyToStart = false;
+    bufferPos = 0;
+    samplesPosition = 0;
+    imageCyclePos = 0;
+    playBeep = false;
+    beatCount = 0;
 }
 
 void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
 {
-    if (readyToStart) return;
-    
     int numSamples = buffer.getNumSamples();
     int oldSamplesPosition = samplesPosition;
     
