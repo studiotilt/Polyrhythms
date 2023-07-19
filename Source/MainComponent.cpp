@@ -81,8 +81,8 @@ void MainComponent::resized()
     int y = 40;
     for(auto rhythm : rhythms)
     {
-        rhythm->setBounds(0, y, getWidth(), 50);
-        y += 60;
+        rhythm->setBounds(0, y, getWidth(), 80);
+        y += 80;
     }
 }
 
