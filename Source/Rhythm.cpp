@@ -12,6 +12,10 @@
 
 Rhythm::Rhythm(const char* dataName)
 {
+    readFile(dataName);
+    
+    currentColour = juce::Colours::transparentBlack;
+    
     volumeLabel.setText("Volume", juce::dontSendNotification);
     volumeLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(volumeLabel);
@@ -20,7 +24,7 @@ Rhythm::Rhythm(const char* dataName)
     volumeSlider.setValue(1.0f);
     addAndMakeVisible(volumeSlider);
     
-    for(int i = 1; i < 16; i++)
+    for(int i = 1; i < 32; i++)
     {
         juce::String stringIndex(i);
         nominatorCombo.addItem(stringIndex, i);
@@ -28,38 +32,28 @@ Rhythm::Rhythm(const char* dataName)
     }
     
     nominatorCombo.setSelectedItemIndex(3);
-    denominatorCombo.setSelectedItemIndex(3);
-    nominatorCombo.addListener(this);
-    denominatorCombo.addListener(this);
     addAndMakeVisible(nominatorCombo);
+    nominatorCombo.addListener(this);
+    
+    denominatorCombo.setSelectedItemIndex(3);
     addAndMakeVisible(denominatorCombo);
+    denominatorCombo.addListener(this);
     
     addAndMakeVisible(timeSigLabel);
-    
-    currentColour = juce::Colours::transparentBlack;
-    
-    juce::AudioFormatManager formatManager;
-    formatManager.registerBasicFormats();
-    int size = 0;
-    auto resource = BinaryData::getNamedResource(dataName, size);
-    juce::AudioFormatReader* reader {
-        formatManager.createReaderFor(std::make_unique<juce::MemoryInputStream>(resource, size, false))
-    };
-    
-    sampleBuffer.setSize(reader->numChannels, (int) reader->lengthInSamples);
-    reader->read(&sampleBuffer, 0, reader->lengthInSamples, 0, true, true);
-    
+
     startTimer(5);
 }
 
 void Rhythm::paint(juce::Graphics &g)
 {
+    // paint the whole component the current colour
     g.setColour(currentColour);
     g.fillAll();
 }
 
 void Rhythm::resized()
 {
+    // size all the UI compoinents
     volumeLabel     .setBounds(0,                         0,             getWidth()/3, getHeight()/2);
     volumeSlider    .setBounds(0,                         getHeight()/2, getWidth()/3, getHeight()/2);
     nominatorCombo  .setBounds(getWidth()/3,              0,             getWidth()/6, getHeight()/2);
@@ -110,17 +104,16 @@ void Rhythm::restart()
 void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
 {
     int numSamples = buffer.getNumSamples();
-    int oldSamplesPosition = samplesPosition;
     
-    samplesPosition+=numSamples;
-    
+    // check if the beat is in this block
     for (int i = 0; i < numSamples; i++)
     {
-        if ((oldSamplesPosition + i) % samplesPerBeatMul == 0)
+        if ((samplesPosition + i) % samplesPerBeatMul == 0)
         {
             beatCount++;
             if (beatCount % nominator == 0)
             {
+                // beat is in this block, set everything accordingly
                 beatCount = 0;
                 playBeep = true;
                 showColour = true;
@@ -140,11 +133,12 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
         copyBuffer.applyGain(volumeSlider.getValue());
         
         buffer.addFrom(0, 0, copyBuffer, 0, 0, numSamplesToAdd);
-        
         if(buffer.getNumChannels() > 1)
             buffer.addFrom(1, 0, copyBuffer, 0, 0, numSamplesToAdd);
         
         bufferPos += numSamplesToAdd;
+        
+        // next block will overrun internal buffer. Stop playing now.
         if (bufferPos >= sampleBuffer.getNumSamples())
         {
             bufferPos = 0;
@@ -162,5 +156,24 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
             showColour = false;
         }
     }
+    
+    samplesPosition += numSamples;
+    
+}
+
+void Rhythm::readFile(const char* dataName)
+{
+    // set up format manager
+    juce::AudioFormatManager formatManager;
+    formatManager.registerBasicFormats();
+    
+    // get the resource
+    int size = 0;
+    auto resource = BinaryData::getNamedResource(dataName, size);
+    
+    // create reader and read file to internal audio buffer
+    juce::AudioFormatReader* reader = formatManager.createReaderFor(std::make_unique<juce::MemoryInputStream>(resource, size, false));
+    sampleBuffer.setSize(reader->numChannels, (int) reader->lengthInSamples);
+    reader->read(&sampleBuffer, 0, (int) reader->lengthInSamples, 0, true, true);
     
 }

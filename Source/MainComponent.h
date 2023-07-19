@@ -25,6 +25,7 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     
+    //==============================================================================
     void buttonClicked(juce::Button* button) override;
 
 private:
@@ -32,7 +33,6 @@ private:
     juce::TextButton startButton;
     float bpm = 400.0f;
     int samplesPerBeat = 24000;
-    int bufferPos = 0;
     bool playing = false;
 
 

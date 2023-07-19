@@ -19,7 +19,7 @@ public:
     void paint(juce::Graphics &g) override;
     void resized() override;
     
-    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged);
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
     
     void setSamplesPerBeat(int samples);
     void getNextBlock(juce::AudioBuffer<float>& buffer);
@@ -27,6 +27,7 @@ public:
     void timerCallback() override {repaint();}
     
     void restart();
+    void readFile(const char* dataName);
    
 private:
     void updateTimeSig();
