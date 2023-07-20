@@ -3,6 +3,21 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
+    
+    audioDeviceSelector = std::make_unique<juce::AudioDeviceSelectorComponent>
+    (deviceManager,
+     1,     // int minAudioInputChannels,
+     2,     // int maxAudioInputChannels,
+     2,     // int minAudioOutputChannels,
+     16,     // int maxAudioOutputChannels,
+     false, // bool showMidiInputOptions,
+     false, // bool showMidiOutputSelector,
+     false,  // bool showChannelsAsStereoPairs,
+     true  // bool hideAdvancedOptionsWithButton
+     );
+    addAndMakeVisible(*audioDeviceSelector);
+    
+    
     startButton.setButtonText("Start");
     startButton.setToggleable(true);
     startButton.setClickingTogglesState(true);
@@ -54,9 +69,13 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     bufferToFill.clearActiveBufferRegion();
     
     if (!playing) return;
+    int numChannels = bufferToFill.buffer->getNumChannels();
     
-    for(auto rhythm : rhythms)
-        rhythm->getNextBlock(*bufferToFill.buffer);
+    for(int i = 0; i < rhythms.size(); i++)
+    {
+        auto rhythm = rhythms[i];
+        rhythm->getNextBlock(*bufferToFill.buffer, i%numChannels);
+    }
 }
 
 void MainComponent::releaseResources()
@@ -84,6 +103,7 @@ void MainComponent::resized()
         rhythm->setBounds(0, y, getWidth(), 80);
         y += 80;
     }
+    audioDeviceSelector->setBounds(getLocalBounds().removeFromBottom(audioDeviceSelector->getHeight()));
 }
 
 void MainComponent::buttonClicked(juce::Button* button)

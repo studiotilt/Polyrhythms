@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "Rhythm.h"
+#include "SerialReceive.h"
 
 //==============================================================================
 /*
@@ -34,6 +35,8 @@ private:
     float bpm = 400.0f;
     int samplesPerBeat = 24000;
     bool playing = false;
+    
+    std::unique_ptr<juce::AudioDeviceSelectorComponent> audioDeviceSelector;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

@@ -27,7 +27,7 @@ public:
     
     void setSamplesPerBeat(int samples);
     void setSampleRate(int sampleRate, int maxBufferSize);
-    void getNextBlock(juce::AudioBuffer<float>& buffer);
+    void getNextBlock(juce::AudioBuffer<float>& buffer, int outputChannel);
     
     void timerCallback() override {repaint();}
     

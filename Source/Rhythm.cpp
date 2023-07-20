@@ -196,7 +196,7 @@ void Rhythm::setSampleRate(int sampleRate, int maxBufferSize)
     setEnvelopeParameters();
 }
 
-void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
+void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer, int outputChannel)
 {
     int numSamples = buffer.getNumSamples();
     
@@ -235,9 +235,12 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer)
             
             envelope.applyEnvelopeToBuffer(copyBuffer, 0, numSamplesToAdd);
             
-            buffer.addFrom(0, 0, copyBuffer, 0, 0, numSamplesToAdd);
-            if(buffer.getNumChannels() > 1)
-                buffer.addFrom(1, 0, copyBuffer, 0, 0, numSamplesToAdd);
+            if (buffer.getNumChannels() <= outputChannel) return;
+            buffer.addFrom(outputChannel, 0, copyBuffer, 0, 0, numSamplesToAdd);
+            
+//            buffer.addFrom(0, 0, copyBuffer, 0, 0, numSamplesToAdd);
+//            if(buffer.getNumChannels() > 1)
+//                buffer.addFrom(1, 0, copyBuffer, 0, 0, numSamplesToAdd);
             
             bufferPos += numSamplesToAdd;
             

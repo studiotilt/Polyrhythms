@@ -50,6 +50,7 @@
       <FILE id="pQtIde" name="A (44).wav" compile="0" resource="1" file="Assets/A (44).wav"/>
     </GROUP>
     <GROUP id="{34A50971-C7FD-6B8C-8CB9-FD56306D0C75}" name="Source">
+      <FILE id="RniApR" name="SerialReceive.h" compile="0" resource="0" file="Source/SerialReceive.h"/>
       <FILE id="DYZh5X" name="Rhythm.cpp" compile="1" resource="0" file="Source/Rhythm.cpp"/>
       <FILE id="BlmMGH" name="Rhythm.h" compile="0" resource="0" file="Source/Rhythm.h"/>
       <FILE id="oCjuHm" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
