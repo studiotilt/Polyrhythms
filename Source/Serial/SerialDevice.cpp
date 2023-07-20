@@ -20,6 +20,11 @@ SerialDevice::~SerialDevice ()
     closeSerialPort ();
 }
 
+juce::Array<int> SerialDevice::getCurrentValues()
+{
+    juce::ScopedLock lock(cs);
+    return currentValues;
+}
 
 bool SerialDevice::openSerialPort ()
 {
@@ -64,6 +69,7 @@ void SerialDevice::closeSerialPort ()
 #define kSerialPortBufferLen 256
 void SerialDevice::timerCallback ()
 {
+    juce::ScopedLock lock(cs);
     // handle reading from the serial port
     if ((serialPortInput != nullptr) && (!serialPortInput->isExhausted ()))
     {
@@ -95,9 +101,19 @@ void SerialDevice::timerCallback ()
                     }
                     
                     juce::String newString;
+                    currentValues.clear();
+                    
                     for (int startIndex = dataIndex; startIndex <= index; startIndex++)
                     {
-                        newString+=incomingData[startIndex];
+                        newString += incomingData[startIndex];
+                        char currentChar = incomingData[startIndex];
+                        if (currentChar != '[' &&
+                            currentChar != ',' &&
+                            currentChar != ']' )
+                        {
+                            int currentInt = incomingData[startIndex] - '0';
+                            currentValues.add(currentInt);
+                        }
                     }
                     
                     DBG(newString);

@@ -74,6 +74,13 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     if(serialPortListMonitor.hasListChanged())
         juce::MessageManager::callAsync([this]() { updateSerialComboBox(); });
     
+    if (serialDevice.get())
+    {
+        juce::Array<int> values = serialDevice->getCurrentValues();
+        for (int value : values)
+            DBG(value);
+    }
+    
     if (!playing) return;
     int numChannels = bufferToFill.buffer->getNumChannels();
     

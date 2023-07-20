@@ -9,6 +9,8 @@ public:
     SerialDevice (juce::String newSerialPortName);
     ~SerialDevice ();
 
+    juce::Array<int> getCurrentValues();
+    
 private:
     juce::String serialPortName;
     std::unique_ptr<SerialPort> serialPort;
@@ -19,4 +21,8 @@ private:
     void closeSerialPort (void);
 
     void timerCallback () override;
+    
+    juce::CriticalSection cs;
+    
+    juce::Array<int> currentValues;
 };
