@@ -29,6 +29,9 @@ MainComponent::MainComponent()
         addAndMakeVisible(rhythms[i]);
     }
     
+    serialCombo.addListener(this);
+    addAndMakeVisible(serialCombo);
+    
     setSize (800, 600);
 
     // Some platforms require permissions to open input channels so request that here
@@ -68,6 +71,9 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
 
     bufferToFill.clearActiveBufferRegion();
     
+    if(serialPortListMonitor.hasListChanged())
+        juce::MessageManager::callAsync([this]() { updateSerialComboBox(); });
+    
     if (!playing) return;
     int numChannels = bufferToFill.buffer->getNumChannels();
     
@@ -103,6 +109,9 @@ void MainComponent::resized()
         rhythm->setBounds(0, y, getWidth(), 80);
         y += 80;
     }
+    
+    serialCombo.setBounds(0, y, 40, 40);
+    
     audioDeviceSelector->setBounds(getLocalBounds().removeFromBottom(audioDeviceSelector->getHeight()));
 }
 
@@ -113,4 +122,35 @@ void MainComponent::buttonClicked(juce::Button* button)
     if (!playing)
         for (auto rhythm : rhythms)
             rhythm->restart();
+}
+
+void MainComponent::comboBoxChanged(juce::ComboBox *comboBoxThatHasChanged)
+{
+    juce::StringArray devices = serialPortListMonitor.getSerialPortList().getAllValues();
+    juce::String selectedDevice = devices[serialCombo.getSelectedItemIndex()];
+    
+    if (currentSerialDevice != selectedDevice)
+    {
+        currentSerialDevice = selectedDevice;
+        updateSelectedSerialDevice();
+    }
+    
+    DBG(currentSerialDevice);
+}
+
+void MainComponent::updateSerialComboBox()
+{
+    serialCombo.clear();
+    juce::StringArray devices = serialPortListMonitor.getSerialPortList().getAllValues();
+    
+    for(int i = 0; i < devices.size(); i++)
+    {
+        auto device = devices[i];
+        serialCombo.addItem(device, i+1);
+    }
+}
+
+void MainComponent::updateSelectedSerialDevice()
+{
+    serialDevice = std::make_unique<SerialDevice>(currentSerialDevice);
 }
