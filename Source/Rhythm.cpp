@@ -238,10 +238,6 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer, int outputChannel)
             if (buffer.getNumChannels() <= outputChannel) return;
             buffer.addFrom(outputChannel, 0, copyBuffer, 0, 0, numSamplesToAdd);
             
-//            buffer.addFrom(0, 0, copyBuffer, 0, 0, numSamplesToAdd);
-//            if(buffer.getNumChannels() > 1)
-//                buffer.addFrom(1, 0, copyBuffer, 0, 0, numSamplesToAdd);
-            
             bufferPos += numSamplesToAdd;
             
             if (bufferPos > granularLengthInt)
