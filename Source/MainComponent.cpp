@@ -79,6 +79,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
         juce::Array<int> values = serialDevice->getCurrentValues();
         for (int value : values)
             DBG(value);
+        
     }
     
     if (!playing) return;
@@ -117,7 +118,7 @@ void MainComponent::resized()
         y += 80;
     }
     
-    serialCombo.setBounds(0, y, 40, 40);
+    serialCombo.setBounds(0, y, 200, 40);
     
     audioDeviceSelector->setBounds(getLocalBounds().removeFromBottom(audioDeviceSelector->getHeight()));
 }
