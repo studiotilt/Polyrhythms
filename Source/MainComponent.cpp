@@ -74,11 +74,15 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     if(serialPortListMonitor.hasListChanged())
         juce::MessageManager::callAsync([this]() { updateSerialComboBox(); });
     
+    juce::Array<int> values;
     if (serialDevice.get())
     {
-        juce::Array<int> values = serialDevice->getCurrentValues();
+        values = serialDevice->getCurrentValues();
         for (int value : values)
             DBG(value);
+        
+        // the number of values received should be the same as the number of rhythms
+//        jassert (values.size() == rhythms.size());
         
     }
     
@@ -88,6 +92,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     for(int i = 0; i < rhythms.size(); i++)
     {
         auto rhythm = rhythms[i];
+        if (values.size() >= i) rhythm->setInteractionValue(values[i]);
         rhythm->getNextBlock(*bufferToFill.buffer, i%numChannels);
     }
 }

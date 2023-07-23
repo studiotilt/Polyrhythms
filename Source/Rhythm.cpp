@@ -23,6 +23,7 @@ Rhythm::Rhythm(const char* dataName)
     volumeSlider.setRange(0.0f, 1.0f);
     volumeSlider.setValue(0.0f);
     addAndMakeVisible(volumeSlider);
+    volumeSlider.addListener(this);
     
     for(int i = 1; i < 32; i++)
     {
@@ -66,6 +67,7 @@ Rhythm::Rhythm(const char* dataName)
     granularEnvDecay.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
     granularEnvDecay.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, false, 100, 25);
     addAndMakeVisible(granularEnvDecay);
+    granularEnvDecay.addListener(this);
     
     granularEnvDecayLabel.setText("Decay", juce::dontSendNotification);
     granularEnvDecayLabel.setJustificationType(juce::Justification::topLeft);
@@ -76,6 +78,7 @@ Rhythm::Rhythm(const char* dataName)
     granularEnvSustain.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
     granularEnvSustain.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, false, 100, 25);
     addAndMakeVisible(granularEnvSustain);
+    granularEnvSustain.addListener(this);
     
     granularEnvSustainLabel.setText("Sustain", juce::dontSendNotification);
     granularEnvSustainLabel.setJustificationType(juce::Justification::topLeft);
@@ -103,6 +106,11 @@ Rhythm::Rhythm(const char* dataName)
     granularEnvLengthLabel.setJustificationType(juce::Justification::topLeft);
     granularEnvLengthLabel.setInterceptsMouseClicks(false, false);
     addAndMakeVisible(granularEnvLengthLabel);
+    
+    affectedSliderCombo.addItemList({"volume", "attack", "decay", "sustain", "release", "length"}, 1);
+    affectedSliderCombo.setSelectedItemIndex(0);
+    addAndMakeVisible(affectedSliderCombo);
+    affectedSliderCombo.addListener(this);
     
     startTimer(5);
 }
@@ -142,20 +150,76 @@ void Rhythm::resized()
     granularLength.setBounds(granularSlidersBounds = bounds.removeFromLeft(100));
     granularEnvLengthLabel.setBounds(granularSlidersBounds);
     granularEnvRel.setBounds(granularSlidersBounds = bounds.removeFromLeft(100));
-    granularEnvRelLabel.setBounds(granularSlidersBounds);
+    granularEnvRelLabel.setBounds(granularSlidersBounds = bounds.removeFromLeft(100));
+    
+    affectedSliderCombo.setBounds(granularSlidersBounds);
 }
 
 void Rhythm::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
-    nominator = nominatorCombo.getSelectedItemIndex() + 1;
-    denominator = denominatorCombo.getSelectedItemIndex()+ 1;
-    updateTimeSig();
-    updateSamplesPerBeat();
+    juce::ScopedLock lock(cs);
+    
+    if(comboBoxThatHasChanged == &nominatorCombo ||
+       comboBoxThatHasChanged == &denominatorCombo)
+    {
+        nominator = nominatorCombo.getSelectedItemIndex() + 1;
+        denominator = denominatorCombo.getSelectedItemIndex()+ 1;
+        updateTimeSig();
+        updateSamplesPerBeat();
+    }
+    else if (comboBoxThatHasChanged == &affectedSliderCombo)
+    {
+        int selectedIndex = affectedSliderCombo.getSelectedItemIndex();
+        switch (selectedIndex)
+        {
+            case 0:
+                currentAffectedSlider = &volumeSlider;
+                break;
+            case 1:
+                currentAffectedSlider = &granularEnvAttack;
+                break;
+            case 2:
+                currentAffectedSlider = &granularEnvDecay;
+                break;
+            case 3:
+                currentAffectedSlider = &granularEnvDecay;
+                break;
+            case 4:
+                currentAffectedSlider = &granularEnvSustain;
+                break;
+            case 5:
+                currentAffectedSlider = &granularEnvRel;
+            case 6:
+                currentAffectedSlider = &granularLength;
+            default:
+                break;
+        }
+    }
 }
 
 void Rhythm::sliderValueChanged (juce::Slider* slider)
 {
-    setEnvelopeParameters();
+    juce::ScopedLock lock(cs);
+    
+    if (slider == &granularEnvAttack ||
+        slider == &granularEnvSustain ||
+        slider == &granularEnvDecay ||
+        slider == &granularEnvRel)
+    {
+        attack.store(slider->getValue());
+        decay.store(slider->getValue());
+        sustain.store(slider->getValue());
+        release.store(slider->getValue());
+        setEnvelopeParameters();
+    }
+    else if (slider == &volumeSlider)
+    {
+        volume.store(slider->getValue());
+    }
+    else if (slider == &granularLength)
+    {
+        length.store(slider->getValue());
+    }
 }
 
 
@@ -212,9 +276,9 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer, int outputChannel)
                 beatCount = 0;
                 playBeep = true;
                 showColour = true;
-                currentColour = juce::Colour((juce::uint8)244, (juce::uint8)244, (juce::uint8)244, (float)volumeSlider.getValue());
+                currentColour = juce::Colour((juce::uint8)244, (juce::uint8)244, (juce::uint8)244, volume.load());
                 bufferPos = 0;
-                granularLengthInt = granularLength.getValue() * sampleBuffer.getNumSamples() - (granularPosition.getValue() * sampleBuffer.getNumSamples());
+                granularLengthInt = length.load() * sampleBuffer.getNumSamples() - (granularPosition.getValue() * sampleBuffer.getNumSamples());
                 envelope.noteOn();
             }
         }
@@ -231,7 +295,7 @@ void Rhythm::getNextBlock(juce::AudioBuffer<float>& buffer, int outputChannel)
             
             copyBuffer.setSize(2, numSamplesToAdd);
             copyBuffer.copyFrom(0, 0, sampleBuffer, 0, startPos, numSamplesToAdd);
-            copyBuffer.applyGain(volumeSlider.getValue());
+            copyBuffer.applyGain(volume.load());
             
             envelope.applyEnvelopeToBuffer(copyBuffer, 0, numSamplesToAdd);
             
@@ -284,14 +348,24 @@ void Rhythm::readFile(const char* dataName)
     
 }
 
+void Rhythm::setInteractionValue(float newValue)
+{
+    
+    juce::MessageManager::callAsync([this, newValue] {
+        juce::ScopedLock lock(cs);
+        if (currentAffectedSlider != nullptr)
+            currentAffectedSlider->setValue(newValue);
+    });
+}
+
 void Rhythm::setEnvelopeParameters()
 {
     juce::ADSR::Parameters newParameters;
     
-    newParameters.attack = granularEnvAttack.getValue();
-//    newParameters.sustain = granularEnvSustain.getValue();
-    newParameters.decay = granularEnvDecay.getValue();
-    newParameters.release = granularEnvRel.getValue();
+    newParameters.attack = attack.load();
+//    newParameters.sustain = sustain.load();
+    newParameters.decay = decay.load();
+    newParameters.release = release.load();
     
     envelope.setParameters(newParameters);
 }

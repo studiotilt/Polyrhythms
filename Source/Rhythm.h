@@ -33,12 +33,15 @@ public:
     
     void restart();
     void readFile(const char* dataName);
+    
+    void setInteractionValue(float newValue);
    
 private:
     void updateTimeSig();
     void updateSamplesPerBeat();
     void setEnvelopeParameters();
     
+    std::atomic<float> volume = 0.0f;
     juce::Label volumeLabel;
     juce::Slider volumeSlider;
     juce::ComboBox nominatorCombo;
@@ -47,6 +50,11 @@ private:
     juce::Slider granularPosition;
     juce::Label granularPositionLabel;
     
+    std::atomic<float> attack = 0.0f;
+    std::atomic<float> sustain = 0.0f;
+    std::atomic<float> decay = 0.0f;
+    std::atomic<float> release = 0.0f;
+    std::atomic<float> length = 0.0f;
     juce::Slider granularEnvAttack;
     juce::Slider granularEnvSustain;
     juce::Slider granularEnvDecay;
@@ -78,4 +86,10 @@ private:
     
     juce::ADSR envelope;
     int deviceSampleRate;
+    
+    juce::Slider* currentAffectedSlider;
+    
+    juce::ComboBox affectedSliderCombo;
+    
+    juce::CriticalSection cs;
 };
