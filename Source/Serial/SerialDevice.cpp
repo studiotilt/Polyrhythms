@@ -11,12 +11,12 @@ SerialDevice::SerialDevice (juce::String newSerialPortName)
 {
     serialPortName = newSerialPortName;
     openSerialPort();
-    startTimer (5);
+//    startTimer (5);
 }
 
 SerialDevice::~SerialDevice ()
 {
-    stopTimer();
+//    stopTimer();
     closeSerialPort ();
 }
 
@@ -43,6 +43,8 @@ bool SerialDevice::openSerialPort ()
 
         serialPortInput = std::make_unique<SerialPortInputStream> (serialPort.get());
         serialPortOutput = std::make_unique<SerialPortOutputStream> (serialPort.get ());
+        serialPortInput->addChangeListener(this);
+        serialPortInput->setNotify(SerialPortInputStream::NOTIFY_ON_CHAR, '\n');
         juce::Logger::outputDebugString ("Serial port: " + serialPortName + " opened");
     }
     else
@@ -67,61 +69,32 @@ void SerialDevice::closeSerialPort ()
 
 
 #define kSerialPortBufferLen 256
-void SerialDevice::timerCallback ()
+void SerialDevice::changeListenerCallback (juce::ChangeBroadcaster* source)
 {
     juce::ScopedLock lock(cs);
     // handle reading from the serial port
-    if ((serialPortInput != nullptr) && (!serialPortInput->isExhausted ()))
+    //or, read line by line:
+    juce::String string;
+    while(serialPortInput->canReadLine())
     {
-        auto  bytesRead = 0;
-        auto  dataIndex = 0;
-        char incomingData [kSerialPortBufferLen];
-
-        bytesRead = serialPortInput->read (incomingData, kSerialPortBufferLen);
+        string = serialPortInput->readNextLine();
+    }
+    
+    DBG(string);
+    juce::String currentNumberString;
+    currentValues.clear();
+    for (int index = 0; index < string.length(); index++)
+    {
+        juce::juce_wchar character = string[index];
+        if (character != '[' &&
+            character != ']' )
         {
-            while (dataIndex < bytesRead)
+            if (character != ',')
+                currentNumberString += juce::String::charToString(character);
+            else
             {
-                if (incomingData[dataIndex] == '[')
-                {
-                    
-                    if (bytesRead - dataIndex >= 12)
-                    {
-                        
-                    }
-                    else
-                    {
-                        break;
-                    }
-                    
-                    // get the first array
-                    int index = dataIndex;
-                    while (incomingData[index] != ']')
-                    {
-                        index++;
-                    }
-                    
-                    juce::String newString;
-                    currentValues.clear();
-                    
-                    for (int startIndex = dataIndex; startIndex <= index; startIndex++)
-                    {
-                        newString += incomingData[startIndex];
-                        char currentChar = incomingData[startIndex];
-                        if (currentChar != '[' &&
-                            currentChar != ',' &&
-                            currentChar != ']' )
-                        {
-                            int currentInt = incomingData[startIndex] - '0';
-                            currentValues.add(currentInt);
-                        }
-                    }
-                    
-                    DBG(newString);
-                    
-                    dataIndex = index+1;
-                    continue;
-                }
-                dataIndex++;
+                currentValues.add(currentNumberString.getIntValue());
+                currentNumberString.clear();
             }
         }
     }

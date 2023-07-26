@@ -32,7 +32,16 @@ MainComponent::MainComponent()
     serialCombo.addListener(this);
     addAndMakeVisible(serialCombo);
     
-    setSize (800, 600);
+    loInputBox.setEditable(true);
+    loInputBox.setText("0", juce::dontSendNotification);
+    loInputBox.addListener(this);
+    addAndMakeVisible(loInputBox);
+    hiInputBox.setEditable(true);
+    hiInputBox.setText("1", juce::dontSendNotification);
+    hiInputBox.addListener(this);
+    addAndMakeVisible(hiInputBox);
+    
+    setSize (1000, 800);
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -74,12 +83,16 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     if(serialPortListMonitor.hasListChanged())
         juce::MessageManager::callAsync([this]() { updateSerialComboBox(); });
     
-    juce::Array<int> values;
+    juce::Array<float> scaledValues;
     if (serialDevice.get())
     {
-        values = serialDevice->getCurrentValues();
-        for (int value : values)
-            DBG(value);
+        juce::Array<int> rawValues;
+        rawValues = serialDevice->getCurrentValues();
+        for (int value : rawValues)
+        {
+            scaledValues.add(scaleValue(value));
+
+        }
         
         // the number of values received should be the same as the number of rhythms
 //        jassert (values.size() == rhythms.size());
@@ -92,7 +105,11 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     for(int i = 0; i < rhythms.size(); i++)
     {
         auto rhythm = rhythms[i];
-        if (values.size() >= i) rhythm->setInteractionValue(values[i]);
+        if (scaledValues.size() >= i)
+        {
+            // when user touched the interaction board, value goes DOWN not up - so invert this number!
+            rhythm->setInteractionValue(1.0f - scaledValues[i]);
+        }
         rhythm->getNextBlock(*bufferToFill.buffer, i%numChannels);
     }
 }
@@ -124,8 +141,11 @@ void MainComponent::resized()
     }
     
     serialCombo.setBounds(0, y, 200, 40);
+    loInputBox.setBounds(0, y+40, 50, 20);
+    hiInputBox.setBounds(50, y+40, 50, 20);
     
     audioDeviceSelector->setBounds(getLocalBounds().removeFromBottom(audioDeviceSelector->getHeight()));
+    
 }
 
 void MainComponent::buttonClicked(juce::Button* button)
@@ -151,6 +171,18 @@ void MainComponent::comboBoxChanged(juce::ComboBox *comboBoxThatHasChanged)
     DBG(currentSerialDevice);
 }
 
+void MainComponent::labelTextChanged (juce::Label* labelThatHasChanged)
+{
+    if (labelThatHasChanged == &loInputBox)
+    {
+        loInput = loInputBox.getText().getFloatValue();
+    }
+    else if (labelThatHasChanged == &hiInputBox)
+    {
+        hiInput = hiInputBox.getText().getFloatValue();
+    }
+}
+
 void MainComponent::updateSerialComboBox()
 {
     serialCombo.clear();
@@ -166,4 +198,12 @@ void MainComponent::updateSerialComboBox()
 void MainComponent::updateSelectedSerialDevice()
 {
     serialDevice = std::make_unique<SerialDevice>(currentSerialDevice);
+}
+
+float MainComponent::scaleValue(float input)
+{
+    int constrainedValue = juce::jlimit(loInput, hiInput, input);
+//    float Oto1 = juce::jmap((float) constrainedValue, 0.0f, 1.0f);
+    float Oto1 = juce::jmap((float)constrainedValue, (float)loInput, (float)hiInput, 0.0f, 1.0f);
+    return Oto1;
 }

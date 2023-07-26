@@ -11,7 +11,10 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent  : public juce::AudioAppComponent, public juce::Button::Listener, public juce::ComboBox::Listener
+class MainComponent  : public juce::AudioAppComponent,
+                       public juce::Button::Listener,
+                       public juce::ComboBox::Listener,
+                       public juce::Label::Listener
 {
 public:
     //==============================================================================
@@ -31,6 +34,9 @@ public:
     void buttonClicked(juce::Button* button) override;
     
     void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
+    
+    /** Called when a Label's text has changed. */
+    void labelTextChanged (juce::Label* labelThatHasChanged) override;
 
 private:
     juce::OwnedArray<Rhythm> rhythms;
@@ -48,6 +54,13 @@ private:
     void updateSelectedSerialDevice();
 
     std::unique_ptr<SerialDevice> serialDevice;
+    
+    juce::Label loInputBox;
+    juce::Label hiInputBox;
+    
+    float loInput = 0;
+    float hiInput = 1;
+    float scaleValue(float input);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
