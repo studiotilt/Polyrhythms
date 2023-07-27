@@ -112,6 +112,9 @@ Rhythm::Rhythm(const char* dataName)
     addAndMakeVisible(affectedSliderCombo);
     affectedSliderCombo.addListener(this);
     
+    addAndMakeVisible(dragAndDrop);
+    dragAndDrop.addListener(this);
+    
     startTimer(5);
 }
 
@@ -152,7 +155,8 @@ void Rhythm::resized()
     granularEnvRel.setBounds(granularSlidersBounds = bounds.removeFromLeft(100));
     granularEnvRelLabel.setBounds(granularSlidersBounds = bounds.removeFromLeft(100));
     
-    affectedSliderCombo.setBounds(granularSlidersBounds);
+    affectedSliderCombo.setBounds(granularSlidersBounds = bounds.removeFromLeft(100));
+    dragAndDrop.setBounds(granularSlidersBounds);
 }
 
 void Rhythm::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
@@ -368,4 +372,9 @@ void Rhythm::setEnvelopeParameters()
     newParameters.release = release.load();
     
     envelope.setParameters(newParameters);
+}
+
+void Rhythm::readyToProcess(juce::AudioBuffer<float> buffer, int sampleRate)
+{
+    sampleBuffer.makeCopyOf(buffer);
 }

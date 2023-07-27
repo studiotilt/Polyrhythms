@@ -11,11 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "DragAndDrop.h"
 
 class Rhythm : public juce::Component,
                private juce::ComboBox::Listener,
                private juce::Slider::Listener,
-               private juce::Timer
+               private juce::Timer,
+               private DragAndDrop::Listener
 {
 public:
     Rhythm(const char* dataName);
@@ -35,6 +37,8 @@ public:
     void readFile(const char* dataName);
     
     void setInteractionValue(float newValue);
+    
+    void readyToProcess(juce::AudioBuffer<float> buffer, int sampleRate) override;
    
 private:
     void updateTimeSig();
@@ -92,4 +96,6 @@ private:
     juce::ComboBox affectedSliderCombo;
     
     juce::CriticalSection cs;
+    
+    DragAndDrop dragAndDrop;
 };

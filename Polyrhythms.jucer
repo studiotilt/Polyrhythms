@@ -59,6 +59,8 @@
             file="Source/Serial/SerialPortListMonitor.h"/>
     </GROUP>
     <GROUP id="{34A50971-C7FD-6B8C-8CB9-FD56306D0C75}" name="Source">
+      <FILE id="UlNF3s" name="DragAndDrop.cpp" compile="1" resource="0" file="Source/DragAndDrop.cpp"/>
+      <FILE id="ieiYFN" name="DragAndDrop.h" compile="0" resource="0" file="Source/DragAndDrop.h"/>
       <FILE id="RniApR" name="SerialReceive.h" compile="0" resource="0" file="Source/SerialReceive.h"/>
       <FILE id="DYZh5X" name="Rhythm.cpp" compile="1" resource="0" file="Source/Rhythm.cpp"/>
       <FILE id="BlmMGH" name="Rhythm.h" compile="0" resource="0" file="Source/Rhythm.h"/>
